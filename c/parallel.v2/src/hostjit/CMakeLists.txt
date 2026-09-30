@@ -89,7 +89,13 @@ endif()
 target_link_libraries(cccl.c.parallel.v2.hostjit_lib PUBLIC libnvcc)
 
 if (CUDAToolkit_FOUND)
-  target_link_libraries(cccl.c.parallel.v2.hostjit_lib PUBLIC CUDA::cudart)
+  # hostjit_lib is a static library, so even a PRIVATE dependency propagates to
+  # its consumers as a link-only dependency. Link the static runtime so that
+  # cccl.c.parallel.v2 does not pick up a DT_NEEDED on libcudart.so.<major>.
+  target_link_libraries(
+    cccl.c.parallel.v2.hostjit_lib
+    PUBLIC CUDA::cudart_static
+  )
 endif()
 
 if (NOT MSVC)
